@@ -36,5 +36,19 @@ class BasicTestCase(unittest.TestCase):
         self.assertTrue(u.verify_password('cat'))
         self.assertFalse(u.verify_password('dog'))
 
+    def test_valid_confirmation_token(self):
+        u = User(password='cat')
+        token = u.generate_confirmation_token()
+        self.assertTrue(u.confirm(token))
+
+    def test_invalid_confirmation_token(self):
+        u1 = User(email='john@example.com', username='john', password='cat')
+        u2 = User(email='mary@example.com', username='mary', password='cat')
+        db.session.add(u1)
+        db.session.add(u2)
+        db.session.commit()
+        token = u1.generate_confirmation_token()
+        self.assertFalse(u2.confirm(token))
+
 if __name__ == '__main__':
     unittest.main()

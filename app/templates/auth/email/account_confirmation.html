@@ -1,0 +1,8 @@
+<p>Dear {{ user.username }},</p>
+
+<p>Thank you for registering your account with us.</p>
+
+<p>Please confirm your account by clicking <a href="{{ url_for('auth.confirm', token=token, _external=True)}}">{{ url_for('auth.confirm', token=token, _external=True)}}</a>.</p>
+
+<p>Kind Regards</p>
+<p>Admin Team</p>

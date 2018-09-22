@@ -1,6 +1,6 @@
 {% extends "bootstrap/base.html" %}
 
-{% block title %}Flask Application{% endblock %}
+{% block title %}User Management System{% endblock %}
 {% block head %}
 {{ super() }}
 {% endblock %}
@@ -23,14 +23,17 @@
         </ul>
         <ul class="navbar-nav ml-auto">
             {% if not current_user.is_authenticated %}
-            <li class="nav-link">
-                <a href="{{ url_for('auth.login') }}">
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('auth.login') }}">
                     Log In
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('auth.register') }}">Register</a>
+            </li>
             {% else %}
-            <li class="nav-link">
-                <a href="{{ url_for('auth.logout') }}">
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('auth.logout') }}">
                     Log Out
                 </a>
             </li>
