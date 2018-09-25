@@ -3,6 +3,7 @@ from flask import current_app
 from app import create_app, db
 from app.models import User
 
+
 class BasicTestCase(unittest.TestCase):
     def setUp(self):
         self.app = create_app('testing')
@@ -49,6 +50,7 @@ class BasicTestCase(unittest.TestCase):
         db.session.commit()
         token = u1.generate_confirmation_token()
         self.assertFalse(u2.confirm(token))
+
 
 if __name__ == '__main__':
     unittest.main()
