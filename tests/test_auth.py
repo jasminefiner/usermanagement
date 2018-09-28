@@ -177,3 +177,99 @@ class AuthenticationTestCase(unittest.TestCase):
         response = self.client.get('/auth/confirm', follow_redirects=True)
         self.assertIn('Please log in to access this page',
                       response.get_data(as_text=True))
+
+    def test_change_password_route(self):
+        response = self.client.get('/auth/change_password',
+                                   follow_redirects=True)
+        self.assertIn('Please log in to access this page',
+                      response.get_data(as_text=True))
+
+        u = User(email="john@example.com",
+                 username="john",
+                 password="cat",
+                 confirmed=True)
+        db.session.add(u)
+        self.login(u.email, 'cat')
+        response = self.client.get('/auth/change_password',
+                                   follow_redirects=True)
+        self.assertIn('Change Password', response.get_data(as_text=True))
+        response = self.client.post('/auth/change_password', data={
+            'oldpassword': 'cat',
+            'newpassword': 'dog',
+            'newpassword2': 'dog'
+        }, follow_redirects=True)
+        self.assertIn('Your password has been updated!',
+                      response.get_data(as_text=True))
+        self.assertTrue(u.verify_password('dog'))
+
+    def test_bad_change_password(self):
+        u = User(email="john@example.com",
+                 username="john",
+                 password="cat",
+                 confirmed=True)
+        db.session.add(u)
+        self.login(u.email, 'cat')
+        response = self.client.get('/auth/change_password',
+                                   follow_redirects=True)
+        self.assertIn('Change Password', response.get_data(as_text=True))
+        response = self.client.post('/auth/change_password', data={
+            'oldpassword': 'pig',
+            'newpassword': 'dog',
+            'newpassword2': 'dog'
+        }, follow_redirects=True)
+        self.assertIn('Your password is incorrect.',
+                      response.get_data(as_text=True))
+        self.assertFalse(u.verify_password('dog'))
+
+    def test_request_password_reset_route(self):
+        response = self.client.get('/auth/password_reset_request',
+                                   follow_redirects=True)
+        self.assertIn('Please enter your email address.',
+                      response.get_data(as_text=True))
+
+        u = User(email="john@example.com",
+                 username="john",
+                 password="cat",
+                 confirmed=True)
+        db.session.add(u)
+
+        response = self.client.post('/auth/password_reset_request', data={
+            'email': u.email,
+        }, follow_redirects=True)
+        self.assertIn('An email with a link to reset your password ' +
+                      'has been sent to you.',
+                      response.get_data(as_text=True))
+
+    def test_password_reset_route(self):
+        response = self.client.get('/auth/password_reset/token')
+        self.assertEqual(response.status_code, 200)
+
+    def test_request_email_change_route(self):
+        response = self.client.get('/auth/email_change_request',
+                                   follow_redirects=True)
+        self.assertIn('Please log in to access this page',
+                      response.get_data(as_text=True))
+
+        u = User(email="john@example.com",
+                 username="john",
+                 password="cat",
+                 confirmed=True)
+        db.session.add(u)
+        self.login(u.email, 'cat')
+        response = self.client.get('/auth/email_change_request',
+                                   follow_redirects=True)
+        self.assertIn('Change Email', response.get_data(as_text=True))
+        response = self.client.post('/auth/email_change_request', data={
+            'email': 'mary@example.com',
+            'email2': 'mary@example.com'
+        }, follow_redirects=True)
+        self.assertIn('An email with a link to confirm your new email ' +
+                      'address has been sent to you.',
+                      response.get_data(as_text=True))
+
+    def test_email_change_route(self):
+        response = self.client.get('/auth/email_change/token',
+                                   follow_redirects=True)
+        self.assertIn('Please log in to access this page.',
+                      response.get_data(as_text=True))
+        self.assertEqual(response.status_code, 200)

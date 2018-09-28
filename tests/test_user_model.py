@@ -51,6 +51,56 @@ class BasicTestCase(unittest.TestCase):
         token = u1.generate_confirmation_token()
         self.assertFalse(u2.confirm(token))
 
+    def test_change_password(self):
+        u = User(email='john@example.com', username='john', password='cat')
+        db.session.add(u)
+        hash = u.password_hash
+        u.change_password('dog')
+        self.assertNotEqual(hash, u.password_hash)
+        self.assertFalse(u.verify_password('cat'))
+        self.assertTrue(u.verify_password('dog'))
+
+    def test_generate_password_reset_token(self):
+        u = User(email='john@example.com', username='john', password='cat')
+        db.session.add(u)
+        token = u.generate_password_reset_token()
+        self.assertTrue(token is not None)
+
+    def test_password_reset(self):
+        u = User(email='john@example.com', username='john', password='cat')
+        db.session.add(u)
+        db.session.commit()
+        token = u.generate_password_reset_token()
+        self.assertTrue(User.password_reset(token, 'dog'))
+        self.assertFalse(u.verify_password('cat'))
+
+    def test_generate_email_change_token(self):
+        u = User(email='john@example.com', username='john', password='cat')
+        db.session.add(u)
+        token = u.generate_email_change_token('mary@example.com')
+        self.assertTrue(token is not None)
+
+    def test_email_change(self):
+        u = User(email='john@example.com', username='john', password='cat')
+        db.session.add(u)
+        db.session.commit()
+
+        token = u.generate_email_change_token('john@example.com')
+        self.assertFalse(u.email_change(token))
+
+        token = u.generate_email_change_token('mary@example.com')
+        self.assertTrue(u.email_change(token))
+        self.assertEqual(u.email, 'mary@example.com')
+        self.assertNotEqual(u.email, 'john@example.com')
+
+        token = u.generate_email_change_token(None)
+        self.assertFalse(u.email_change(token))
+
+        token = u.generate_email_change_token('john@example.com')
+        db.session.delete(u)
+        db.session.commit()
+        self.assertFalse(u.email_change(token))
+
 
 if __name__ == '__main__':
     unittest.main()

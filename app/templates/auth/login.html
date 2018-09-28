@@ -5,4 +5,5 @@
 <h1>Log In</h1>
 
 {{ wtf.quick_form(form) }}
+<small>Forgot your password? Click <a href="{{ url_for('auth.password_reset_request') }}">here</a> to reset it.</small>
 {% endblock %}
