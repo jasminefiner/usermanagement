@@ -273,3 +273,50 @@ class AuthenticationTestCase(unittest.TestCase):
         self.assertIn('Please log in to access this page.',
                       response.get_data(as_text=True))
         self.assertEqual(response.status_code, 200)
+
+    def test_profile_route(self):
+        u = User(email='john@example.com', username='john', password='cat')
+        u.name = 'John Smith'
+        u.age = 36
+        u.location = 'London, UK'
+        u.bio = 'This is a short bio.'
+        db.session.add(u)
+        db.session.commit()
+        response = self.client.get('/auth/profile/' + str(u.id),
+                                   follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(u.name, response.get_data(as_text=True))
+        self.assertIn(str(u.age), response.get_data(as_text=True))
+        self.assertIn(u.location, response.get_data(as_text=True))
+        self.assertIn(u.bio, response.get_data(as_text=True))
+
+    def test_edit_profile_route(self):
+        u = User(email='john@example.com',
+                 username='john',
+                 password='cat',
+                 confirmed=True)
+        db.session.add(u)
+        db.session.commit()
+        response = self.client.get('/auth/edit-profile/' + str(u.id),
+                                   follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Please log in to access this page',
+                      response.get_data(as_text=True))
+        self.login(u.email, 'cat')
+        response = self.client.get('/auth/edit-profile/' + str(u.id),
+                                   follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Edit Profile',
+                      response.get_data(as_text=True))
+        response = self.client.post('/auth/edit-profile/' + str(u.id),
+                                    data={
+                                        'name': 'John Smith',
+                                        'age': 36,
+                                        'location': 'London, UK',
+                                        'bio': 'Short Bio'},
+                                    follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('John Smith', response.get_data(as_text=True))
+        self.assertIn('36', response.get_data(as_text=True))
+        self.assertIn('London, UK', response.get_data(as_text=True))
+        self.assertIn('Short Bio', response.get_data(as_text=True))

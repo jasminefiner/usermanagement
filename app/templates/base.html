@@ -37,6 +37,9 @@
                     Account
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="{{ url_for('auth.profile', id=current_user.id) }}">View Profile</a>
+                    <a class="dropdown-item" href="{{ url_for('auth.edit_profile', id=current_user.id) }}">Edit Profile</a>
+                    <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="{{ url_for('auth.change_password') }}">Change Password</a>
                     <a class="dropdown-item" href="{{ url_for('auth.email_change_request') }}">Change Email</a>
                 </div>

@@ -2,6 +2,7 @@ from flask import current_app
 from app import db, login_manager
 from flask_login import UserMixin
 from itsdangerous import JSONWebSignatureSerializer
+from hashlib import md5
 
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -12,6 +13,21 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(80))
     confirmed = db.Column(db.Boolean, default=False)
+    # User profile attributes
+    name = db.Column(db.String(120))
+    age = db.Column(db.Integer())
+    location = db.Column(db.String(120))
+    bio = db.Column(db.Text())
+
+    def avatar(self, size=100, default='identicon', rating='g'):
+        hash = md5(self.email.lower().encode('utf-8')).hexdigest()
+        url = 'https://secure.gravatar.com/avatar'
+        return ('{url}/{hash}?s={size}&d={default}&r={rating}'
+                .format(url=url,
+                        hash=hash,
+                        default=default,
+                        size=size,
+                        rating=rating))
 
     @property
     def password(self):

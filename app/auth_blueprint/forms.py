@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
+from wtforms import StringField, PasswordField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired, Email, EqualTo
 
 
@@ -49,3 +49,11 @@ class EmailChangeForm(FlaskForm):
                                     EqualTo('email2')])
     email2 = StringField('Repeat Email', validators=[DataRequired(), Email()])
     submit = SubmitField('Change Email')
+
+
+class EditProfileForm(FlaskForm):
+    name = StringField('Name')
+    age = StringField('Age')
+    location = StringField('Location')
+    bio = TextAreaField('Short Bio')
+    submit = SubmitField('Save Changes')

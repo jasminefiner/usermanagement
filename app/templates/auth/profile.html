@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+<div class="row">
+    <div class="col-md-4">
+        <img src="{{ user.avatar(128) }}" alt="">
+    </div>
+    <div class="col-md-8">
+        <h1>
+            {% if user.name %}
+            {{ user.name }}
+            {% else %}
+            {{ user.username }}
+            {% endif %}
+            {% if user.age %}
+            , {{ user.age }}
+            {% endif %}
+        </h1>
+        {% if user.location %}
+            <p>{{ user.location }}</p>
+        {% endif %}
+        <p>{{ user.email }}</p>
+    </div>
+</div>
+<hr>
+<h2>
+    About
+    {% if user.name %}
+    {{ user.name }}:
+    {% else %}
+    {{ user.username }}:
+    {% endif %}
+</h2>
+{% if user.bio %}
+    <p>{{ user.bio }}</p>
+{% else %}
+<p>
+    {% if user.name %}
+    {{ user.name }}
+    {% else %}
+    {{ user.username }}
+    {% endif %}
+    hasn't written a bio yet!
+</p>
+{% endif %}
+
+{% endblock %}

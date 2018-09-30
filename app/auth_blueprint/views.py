@@ -4,7 +4,7 @@ from flask_mail import Message
 from . import auth
 from .forms import LogInForm, RegistrationForm, ChangePasswordForm
 from .forms import PasswordResetRequestForm, PasswordResetForm
-from .forms import EmailChangeForm
+from .forms import EmailChangeForm, EditProfileForm
 from .. import db, mail
 from ..models import User
 
@@ -259,4 +259,35 @@ def email_change(token):
     else:
         flash('Invalid confirmation token.' +
               'Your token has either expired or is invalid.')
+    return redirect(url_for('main.index'))
+
+
+@auth.route('/profile/<int:id>')
+def profile(id):
+    user = User.query.get(id)
+    if user is not None:
+        return render_template('auth/profile.html', user=user)
+    else:
+        return redirect(url_for('main.index'))
+
+
+@auth.route('/edit-profile/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_profile(id):
+    form = EditProfileForm()
+    if current_user.id == id:
+        u = User.query.get(id)
+        if form.validate_on_submit():
+            u.name = form.name.data
+            u.age = form.age.data
+            u.location = form.location.data
+            u.bio = form.bio.data
+            db.session.add(u)
+            db.session.commit()
+            return redirect(url_for('auth.profile', id=id))
+        form.name.data = u.name if u.name else None
+        form.age.data = u.age if u.age else None
+        form.location.data = u.location if u.location else None
+        form.bio.data = u.bio if u.bio else None
+        return render_template('auth/edit_profile.html', form=form)
     return redirect(url_for('main.index'))

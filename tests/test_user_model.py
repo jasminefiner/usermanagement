@@ -4,7 +4,7 @@ from app import create_app, db
 from app.models import User
 
 
-class BasicTestCase(unittest.TestCase):
+class UserModelTestCase(unittest.TestCase):
     def setUp(self):
         self.app = create_app('testing')
         self.app_context = self.app.app_context()
@@ -100,6 +100,33 @@ class BasicTestCase(unittest.TestCase):
         db.session.delete(u)
         db.session.commit()
         self.assertFalse(u.email_change(token))
+
+    def test_user_profile_attributes(self):
+        u = User(email='john@example.com', username='john', password='cat')
+        db.session.add(u)
+        self.assertEqual(u.name, None)
+        self.assertEqual(u.age, None)
+        self.assertEqual(u.location, None)
+        self.assertEqual(u.bio, None)
+        u.name = 'John Smith'
+        u.age = 36
+        u.location = 'London, UK'
+        u.bio = 'This is a short bio'
+        self.assertNotEqual(u.name, None)
+        self.assertNotEqual(u.age, None)
+        self.assertNotEqual(u.location, None)
+        self.assertNotEqual(u.bio, None)
+
+    def test_avatar(self):
+        u = User(email='john@example.com', username='john', password='cat')
+        avatar = u.avatar()
+        avatar_256 = u.avatar(256)
+        avatar_pg = u.avatar(rating='pg')
+        avatar_retro = u.avatar(default='retro')
+        self.assertNotEqual(avatar, None)
+        self.assertIn('s=256', avatar_256)
+        self.assertIn('r=pg', avatar_pg)
+        self.assertIn('d=retro', avatar_retro)
 
 
 if __name__ == '__main__':
