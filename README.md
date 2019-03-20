@@ -1,5 +1,5 @@
 # Flask User Management System
-This repository contains code for a user management system built in Flask. I built this partly as a way of learning how the Flask framework works, and also so I didn't have to repeat the same code when building different apps that each required user management systems. I've also written a series of blog posts detailing the process of building this system. These posts can be found [here](https://webdevblog.net).
+This repository contains code for a user management system built in Flask. I built this partly as a way of learning how the Flask framework works, and also so I didn't have to repeat the same code when building different apps that each required user management systems.
 
 ## Installation and setup
 ### Clone the repository
